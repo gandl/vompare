@@ -3,10 +3,13 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define DISP_PREC 5
+
 int main(int argc, char **argv){
     
     if(argc != 3){
         fprintf(stderr, "Not enough or to many arguemnts");
+        return 0;
     }
     
     mpf_t i_volt, i_amp, i_res, i_pow;
@@ -45,7 +48,7 @@ int main(int argc, char **argv){
         break; 
         case 'w' : mpf_set_str(i_pow, i_first, 10);
         break; 
-        default : printf("Input1: %c Nix gefunden :( \n",first_unit);
+        default : fprintf(stderr, "Wrong Type for first Unit: %c \n",first_unit);
              
     }
     char second_unit = argv[2][strlen(argv[2]) - 1];
@@ -66,7 +69,7 @@ int main(int argc, char **argv){
         break; 
         case 'w' : mpf_set_str(i_pow, i_sec, 10);
         break; 
-        default : printf("Input2: %c Nix gefunden :( \n",second_unit);
+        default : fprintf(stderr, "Wrong Type for second Unit: %c \n",second_unit);
              
     }
 
@@ -94,33 +97,16 @@ int main(int argc, char **argv){
         mpf_div(i_res, i_volt, i_amp);
     }
     else{
-        fprintf(stderr, "Something with arguments. \n");
+        fprintf(stderr, "Seems like you gave the same argument twice. \n");
+        return 0;
     }
 
-    gmp_printf ("Volt % .*Ff \n", 5, i_volt, 5);
-    gmp_printf ("Ampere % .*Ff \n", 5, i_amp, 5);
-    gmp_printf ("Ohm % .*Ff \n", 5, i_res, 5);
-    gmp_printf ("Watt % .*Ff \n", 5, i_pow, 5);
+    gmp_printf ("% .*Ff V\n", 5, i_volt, DISP_PREC);
+    gmp_printf ("% .*Ff A\n", 5, i_amp, DISP_PREC);
+    gmp_printf ("% .*Ff O\n", 5, i_res, DISP_PREC);
+    gmp_printf ("% .*Ff W\n", 5, i_pow, DISP_PREC);
 
-
+    return 1;
 
 }
 
-/*
-V Volt
-A Ampere
-O Ohm
-W Watt
-
-U = R · I   ->   Spannung = Widerstand · Stromstärke
-
-R = U / I   ->   Widerstand = Spannung / Stromstärke
-
-I = U / R   ->   Stromstärke = Spannung / Widerstand
-
-P = U · I   ->   Leistung = Spannung · Stromstärke
-
-U = P / I   ->   Spannung = Leistung / Stromstärke
-
-I = P / U   ->   Stromstärke = Leistung / Spannung
-*/

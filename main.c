@@ -83,12 +83,15 @@ int main(int argc, char **argv){
     }
     else if( mpf_sgn(i_volt) && mpf_sgn(i_pow)){
         mpf_div(i_amp, i_pow, i_volt);
+        mpf_div(i_res, i_volt, i_amp);
     }
     else if( mpf_sgn(i_amp) && mpf_sgn(i_res)){
         mpf_mul(i_volt, i_res, i_amp);
+        mpf_mul(i_pow, i_volt, i_amp);
     }
     else if( mpf_sgn(i_amp) && mpf_sgn(i_pow)){
         mpf_div(i_volt, i_pow, i_amp);
+        mpf_div(i_res, i_volt, i_amp);
     }
     else{
         fprintf(stderr, "Something with arguments. \n");

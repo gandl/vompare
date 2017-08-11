@@ -1,5 +1,5 @@
 CC =gcc
 CFLAGS = -lgmp
 
-got: main.c
+vompare: main.c
 	$(CC) $(CFLAGS) -o vompare main.c

@@ -6,20 +6,27 @@
 #define DISP_PREC 5
 
 int main(int argc, char **argv){
-    
+
+
+    //Initial Input Check
     if(argc != 3){
         fprintf(stderr, "Not enough or to many arguemnts");
         return 0;
     }
     
+    //Declare Stuff
     mpf_t i_volt, i_amp, i_res, i_pow;
-    
+    char *i_first, *i_sec;
+    char first_unit, second_unit;
+
+    //Initialize Stuff
     mpf_init(i_volt);
     mpf_init(i_amp);
     mpf_init(i_res);
     mpf_init(i_pow);
     
-    char *i_first, *i_sec;
+    first_unit = argv[1][strlen(argv[1]) - 1];
+    second_unit = argv[2][strlen(argv[2]) - 1];
 
     i_first = (char *) malloc(strlen(argv[1]));
     i_sec = (char *) malloc(strlen(argv[2]));
@@ -30,7 +37,7 @@ int main(int argc, char **argv){
     i_first[strlen(i_first) - 1] = '\0';
     i_sec[strlen(i_sec) - 1] = '\0';
     
-    char first_unit = argv[1][strlen(argv[1]) - 1];
+    //Check the Units
     switch(first_unit){
         case 'V' : mpf_set_str(i_volt, i_first, 10);
         break;
@@ -48,10 +55,10 @@ int main(int argc, char **argv){
         break; 
         case 'w' : mpf_set_str(i_pow, i_first, 10);
         break; 
-        default : fprintf(stderr, "Wrong Type for first Unit: %c \n",first_unit);
+        default : fprintf(stderr, "Wrong Type for first Unit: %c \n",first_unit); return 0;
              
     }
-    char second_unit = argv[2][strlen(argv[2]) - 1];
+    
     switch(second_unit){
         case 'V' : mpf_set_str(i_volt, i_sec, 10);
         break;
@@ -69,13 +76,14 @@ int main(int argc, char **argv){
         break; 
         case 'w' : mpf_set_str(i_pow, i_sec, 10);
         break; 
-        default : fprintf(stderr, "Wrong Type for second Unit: %c \n",second_unit);
+        default : fprintf(stderr, "Wrong Type for second Unit: %c \n",second_unit); return 0;
              
     }
 
     free(i_first);
     free(i_sec);
 
+    //Calculate the values
     if( mpf_sgn(i_volt) && mpf_sgn(i_amp)){
         mpf_div(i_res, i_volt, i_amp);
         mpf_mul(i_pow, i_volt, i_amp);
@@ -101,6 +109,7 @@ int main(int argc, char **argv){
         return 0;
     }
 
+    //Print the values 
     gmp_printf ("% .*Ff V\n", 5, i_volt, DISP_PREC);
     gmp_printf ("% .*Ff A\n", 5, i_amp, DISP_PREC);
     gmp_printf ("% .*Ff O\n", 5, i_res, DISP_PREC);

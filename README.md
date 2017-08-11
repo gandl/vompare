@@ -13,3 +13,5 @@ V for Volt
 O for Resistance (Ohm)
 
 W for Power (Watt)
+
+Requirement: [GNU Multiple Precision Library](https://gmplib.org/)

@@ -79,6 +79,7 @@ int main(int argc, char **argv){
     }
     else if( mpf_sgn(i_volt) && mpf_sgn(i_res)){
         mpf_div(i_amp, i_volt, i_res);
+        mpf_mul(i_pow, i_volt, i_amp);
     }
     else if( mpf_sgn(i_volt) && mpf_sgn(i_pow)){
         mpf_div(i_amp, i_pow, i_volt);

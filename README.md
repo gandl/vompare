@@ -15,3 +15,5 @@ O for Resistance (Ohm)
 W for Power (Watt)
 
 Requirement: [GNU Multiple Precision Library](https://gmplib.org/)
+
+possible options are: -n for not showing any units oder - o vaow for changing the order of output.

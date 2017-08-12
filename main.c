@@ -3,8 +3,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #define DISP_PREC 10
+
+char* printing_order = "vaow";
+int print_units = 1;
 
 //Two values have to be given to be able to calculate the rest
 int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow){
@@ -37,14 +41,39 @@ int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow){
 
 //print all given values in a list, ending with newline
 int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow){
-    gmp_printf ("% .*FfV", DISP_PREC, *volt, DISP_PREC);
-    gmp_printf ("% .*FfA", DISP_PREC, *amp, DISP_PREC);
-    gmp_printf ("% .*FfO", DISP_PREC, *res, DISP_PREC);
-    gmp_printf ("% .*FfW", DISP_PREC, *pow, DISP_PREC);
-    printf("\n");
 
+    if(print_units){
+        for(int i = 0; i < strlen(printing_order); i++){
+            switch(printing_order[i]){
+                case 'a' : gmp_printf ("% .*FfA", DISP_PREC, *amp, DISP_PREC);
+                break;
+                case 'v' : gmp_printf ("% .*FfV", DISP_PREC, *volt, DISP_PREC);
+                break;
+                case 'w' : gmp_printf ("% .*FfW", DISP_PREC, *pow, DISP_PREC);
+                break;
+                case 'o' : gmp_printf ("% .*FfO", DISP_PREC, *res, DISP_PREC);
+                break;  
+            }   
+        }
+    }
+    else{
+        for(int i = 0; i < strlen(printing_order); i++){
+            switch(printing_order[i]){
+                case 'a' : gmp_printf ("% .*Ff", DISP_PREC, *amp, DISP_PREC);
+                break;
+                case 'v' : gmp_printf ("% .*Ff", DISP_PREC, *volt, DISP_PREC);
+                break;
+                case 'w' : gmp_printf ("% .*Ff", DISP_PREC, *pow, DISP_PREC);
+                break;
+                case 'o' : gmp_printf ("% .*Ff", DISP_PREC, *res, DISP_PREC);
+                break;  
+            }   
+        }
+    }
     return 1;
 }
+
+
 
 //assign input values to the correct units
 int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow, char *first, char *sec){
@@ -77,7 +106,7 @@ int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow, char *first, ch
         break; 
         case 'w' : mpf_set_str(*pow, first, 10);
         break; 
-        default : fprintf(stderr, "ERROR: Wrong Type for first Unit: %c \n",first_unit); return 0;
+        default : return 0;
              
     }
     
@@ -98,36 +127,49 @@ int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *pow, char *first, ch
         break; 
         case 'w' : mpf_set_str(*pow, sec, 10);
         break; 
-        default : fprintf(stderr, "ERROR: Wrong Type for second Unit: %c \n",second_unit); return 0;
+        default : return 0;
              
     }
+
+    return 1;
 }
 
 
 int main(int argc, char **argv){
 
-
-    //Initial Input Check
-    if(argc != 3){
-        fprintf(stderr, "ERROR: Not enough or to many arguemnts");
-        return 0;
-    }
-    
-    //Declare Stuff
     mpf_t i_volt, i_amp, i_res, i_pow;
+    int c;
+
+    opterr = 0;
+
+    while ((c = getopt (argc, argv, "no:")) != -1)
+    switch (c){
+      case 'n':
+        print_units = 0;
+        break;
+      case 'o':
+        printing_order = optarg;
+        break;
+      case '?':
+        if (optopt == 'o')
+          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+        else if (isprint (optopt))
+          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+        return 1;
+      default:
+        abort ();
+      }
 
 
-    //init Values
-    init_values(&i_volt, &i_amp, &i_res, &i_pow, argv[1], argv[2]);
-
-    //Calculate Values
-    if(!calc_values(&i_volt, &i_amp, &i_res, &i_pow))
-        fprintf(stderr, "ERROR: Could not calculate Values. \n");
+    if(init_values(&i_volt, &i_amp, &i_res, &i_pow, argv[optind], argv[optind + 1]))
+        if(calc_values(&i_volt, &i_amp, &i_res, &i_pow))
+            print_values(&i_volt, &i_amp, &i_res, &i_pow);
 
     
-    //Print the values 
-    print_values(&i_volt, &i_amp, &i_res, &i_pow);
-
     return 1;
 
 }

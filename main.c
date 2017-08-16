@@ -6,10 +6,12 @@
 #include <unistd.h>
 #include <ctype.h>
 
+
 static int disp_prec = 10;              //Precision of output
 static char* printing_order = "vaow";   //Order of printing volt, amps, resistance and power
 static int print_units = 1;             //Print units after the values
 static mp_bitcnt_t calc_prec = 1024;
+static int cl_arg_present = 0;
 
 //Two values have to be given to be able to calculate the two missing values
 int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
@@ -86,7 +88,6 @@ int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power, char *first, 
 
     first[strlen(first) - 1] = '\0';
     sec[strlen(sec) - 1] = '\0';
-
     switch(first_unit){
         case 'V' : mpf_set_str(*volt, first, 10);
         break;
@@ -173,10 +174,17 @@ int main(int argc, char **argv){
         abort ();
     }
 
+
     
 
     //solve for two given command line arguments
-    if(argc == optind +2){
+    if(argc > optind + 2){
+        fprintf(stderr, "Too many arguments\n");
+        return 0;
+    }
+        
+    if(argc == optind + 2){
+        cl_arg_present = 1;
         mpf_init(i_volt);
         mpf_init(i_amp);
         mpf_init(i_res);
@@ -191,9 +199,10 @@ int main(int argc, char **argv){
         mpf_clear(i_power);
     }
     
+
     
     //work through stdin input. it has to be given two values in each line seperated by space
-    if(!feof(stdin)){
+    if(!cl_arg_present){
         while((read = getline(&line, &len, stdin)) != -1){
             mpf_init(i_volt);
             mpf_init(i_amp);
@@ -215,9 +224,9 @@ int main(int argc, char **argv){
             mpf_clear(i_amp);
             mpf_clear(i_res);
             mpf_clear(i_power);
-            }
-            
-        free(line);            
+                
+            free(line);            
+        }
     }
     
     

@@ -1,5 +1,5 @@
 CC =gcc
-CFLAGS = -lgmp
+CFLAGS = -lgmp -m64
 
 vompare: main.c
 	$(CC) $(CFLAGS) -o vompare main.c

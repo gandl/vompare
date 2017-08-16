@@ -1,2 +1,5 @@
-vompare
-.vscode/settings.json
+*
+!main.c
+!Makefile
+!README
+!.gitignore

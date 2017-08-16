@@ -1,3 +1,5 @@
-vompare
-.vscode/settings.json
-test/*
+*
+!.gitignore
+!main.c
+!Makefile
+!README.md

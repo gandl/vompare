@@ -16,4 +16,4 @@ W for Power (Watt)
 
 Requirement: [GNU Multiple Precision Library](https://gmplib.org/)
 
-possible options are: -n for not showing any units oder - o vaow for changing the order of output.
+possible options are: -n for not showing any units, - o vaow for changing the order of output, -p 1024 for precision calculation and -d 10 for display precision.

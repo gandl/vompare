@@ -9,6 +9,7 @@
 static int disp_prec = 10;              //Precision of output
 static char* printing_order = "vaow";   //Order of printing volt, amps, resistance and power
 static int print_units = 1;             //Print units after the values
+static mp_bitcnt_t calc_prec = 1024;
 
 //Two values have to be given to be able to calculate the two missing values
 int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
@@ -79,10 +80,6 @@ int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
 //identify the units(volt, ampere, resistance or power) of the given input.
 int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power, char *first, char *sec){
 
-    mpf_init(*volt);
-    mpf_init(*amp);
-    mpf_init(*res);
-    mpf_init(*power);
 
     char first_unit = first[strlen(first) - 1];
     char second_unit = sec[strlen(sec) - 1];
@@ -143,12 +140,12 @@ int main(int argc, char **argv){
     ssize_t read;
     size_t len = 0;
     char *line = NULL;
-    
+    mpf_set_default_prec(calc_prec);
 
     //work trhough given program options
     opterr = 0;
 
-    while ((options = getopt (argc, argv, "no:p:")) != -1)
+    while ((options = getopt (argc, argv, "no:p:d:")) != -1)
     switch (options){
       case 'n':
         print_units = 0;
@@ -156,11 +153,13 @@ int main(int argc, char **argv){
       case 'o':
         printing_order = optarg;
         break;
-      case 'p':
+      case 'd':
         disp_prec = atoi(optarg);
         break;
+      case 'p':
+        calc_prec = atoi(optarg);
       case '?':
-        if (optopt == 'o' || optopt == 'p')
+        if (optopt == 'o' || optopt == 'p' || optopt == 'd')
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
         else if (isprint (optopt))
           fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -172,21 +171,34 @@ int main(int argc, char **argv){
       
       default:
         abort ();
-      }
+    }
 
+    
 
     //solve for two given command line arguments
     if(argc == optind +2){
+        mpf_init(i_volt);
+        mpf_init(i_amp);
+        mpf_init(i_res);
+        mpf_init(i_power);
         if(init_values(&i_volt, &i_amp, &i_res, &i_power, argv[optind], argv[optind + 1]))
             if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
                 print_values(&i_volt, &i_amp, &i_res, &i_power);
 
+        mpf_clear(i_volt);
+        mpf_clear(i_amp);
+        mpf_clear(i_res);
+        mpf_clear(i_power);
     }
     
     
     //work through stdin input. it has to be given two values in each line seperated by space
     if(!feof(stdin)){
         while((read = getline(&line, &len, stdin)) != -1){
+            mpf_init(i_volt);
+            mpf_init(i_amp);
+            mpf_init(i_res);
+            mpf_init(i_power);
             char *stream_input[2];
             stream_input[0] = (char*) malloc(len * sizeof(char));
             stream_input[1] = (char*) malloc(len * sizeof(char));
@@ -199,6 +211,10 @@ int main(int argc, char **argv){
             
             free(stream_input[0]);
             free(stream_input[1]);
+            mpf_clear(i_volt);
+            mpf_clear(i_amp);
+            mpf_clear(i_res);
+            mpf_clear(i_power);
             }
             
         free(line);            

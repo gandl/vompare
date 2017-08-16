@@ -10,7 +10,7 @@
 static int disp_prec = 10;              //Precision of output
 static char* printing_order = "vaow";   //Order of printing volt, amps, resistance and power
 static int print_units = 1;             //Print units after the values
-static mp_bitcnt_t calc_prec = 1024;
+static mp_bitcnt_t calc_prec = 64;
 static int cl_arg_present = 0;
 
 //Two values have to be given to be able to calculate the two missing values
@@ -81,8 +81,16 @@ int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
 
 //identify the units(volt, ampere, resistance or power) of the given input.
 int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power, char *first, char *sec){
-
-
+/*
+    if(strlen(first) > 64 || strlen(sec) > 64){
+        fprintf(stderr, "Input too long!\n");
+        return 0;
+    }
+*/
+    mpf_init(*volt);
+    mpf_init(*amp);
+    mpf_init(*res);
+    mpf_init(*power);
     char first_unit = first[strlen(first) - 1];
     char second_unit = sec[strlen(sec) - 1];
 
@@ -182,54 +190,48 @@ int main(int argc, char **argv){
         fprintf(stderr, "Too many arguments\n");
         return 0;
     }
-        
+    
     if(argc == optind + 2){
         cl_arg_present = 1;
-        mpf_init(i_volt);
-        mpf_init(i_amp);
-        mpf_init(i_res);
-        mpf_init(i_power);
-        if(init_values(&i_volt, &i_amp, &i_res, &i_power, argv[optind], argv[optind + 1]))
+     
+        if(init_values(&i_volt, &i_amp, &i_res, &i_power, argv[optind], argv[optind + 1])){
             if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
                 print_values(&i_volt, &i_amp, &i_res, &i_power);
+        }
 
-        mpf_clear(i_volt);
-        mpf_clear(i_amp);
-        mpf_clear(i_res);
-        mpf_clear(i_power);
     }
     
 
     
     //work through stdin input. it has to be given two values in each line seperated by space
+    
     if(!cl_arg_present){
+    
         while((read = getline(&line, &len, stdin)) != -1){
-            mpf_init(i_volt);
-            mpf_init(i_amp);
-            mpf_init(i_res);
-            mpf_init(i_power);
-            char *stream_input[2];
-            stream_input[0] = (char*) malloc(len * sizeof(char));
-            stream_input[1] = (char*) malloc(len * sizeof(char));
-            sscanf(line, "%s %s", stream_input[0], stream_input[1]);
-    
-            if(init_values(&i_volt, &i_amp, &i_res, &i_power, stream_input[0], stream_input[1]))
-                if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
-                    print_values(&i_volt, &i_amp, &i_res, &i_power);
-    
-            
-            free(stream_input[0]);
-            free(stream_input[1]);
-            mpf_clear(i_volt);
-            mpf_clear(i_amp);
-            mpf_clear(i_res);
-            mpf_clear(i_power);
+                char *stream_input[2];
+                stream_input[0] = (char*) malloc(len * sizeof(char));
+                stream_input[1] = (char*) malloc(len * sizeof(char));
+                sscanf(line, "%s %s", stream_input[0], stream_input[1]);
+                printf("%s\n", stream_input[0]);
+                printf("%s\n", stream_input[1]);
+                if(strlen(stream_input[0]) <= 64 && strlen(stream_input[1]) <= 64){
+                    if(init_values(&i_volt, &i_amp, &i_res, &i_power, stream_input[0], stream_input[1])){
+                        if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
+                            print_values(&i_volt, &i_amp, &i_res, &i_power);
+                    }
+                }
                 
-            free(line);            
+                
+                free(stream_input[0]);
+                free(stream_input[1]);
+                
+            
+            free(line);
+            len = 0;      
+                    
         }
     }
-    
-    
+  
     return 1;
 
 }

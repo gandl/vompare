@@ -1,12 +1,5 @@
 *
-<<<<<<< HEAD
-!main.c
-!Makefile
-!README
-!.gitignore
-=======
 !.gitignore
 !main.c
 !Makefile
 !README.md
->>>>>>> 44be1d4c34b849187ec54143711c322e91ccc05a

@@ -6,12 +6,11 @@
 #include <unistd.h>
 #include <ctype.h>
 
-static int DISP_PREC = 10;
+static int disp_prec = 10;              //Precision of output
+static char* printing_order = "vaow";   //Order of printing volt, amps, resistance and power
+static int print_units = 1;             //Print units after the values
 
-char* printing_order = "vaow";
-int print_units = 1;
-
-//Two values have to be given to be able to calculate the rest
+//Two values have to be given to be able to calculate the two missing values
 int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
     if( mpf_sgn(*volt) && mpf_sgn(*amp)){
         mpf_div(*res, *volt, *amp);
@@ -40,19 +39,19 @@ int calc_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
     return 1;
 }
 
-//print all given values in a list, ending with newline
+//print all given values in order given by "printing_order", ending with newline
 int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
 
     if(print_units){
         for(int i = 0; i < strlen(printing_order); i++){
             switch(printing_order[i]){
-                case 'a' : gmp_printf ("% .*FfA", DISP_PREC, *amp, DISP_PREC);
+                case 'a' : gmp_printf ("% .*FfA", disp_prec, *amp, disp_prec);
                 break;
-                case 'v' : gmp_printf ("% .*FfV", DISP_PREC, *volt, DISP_PREC);
+                case 'v' : gmp_printf ("% .*FfV", disp_prec, *volt, disp_prec);
                 break;
-                case 'w' : gmp_printf ("% .*FfW", DISP_PREC, *power, DISP_PREC);
+                case 'w' : gmp_printf ("% .*FfW", disp_prec, *power, disp_prec);
                 break;
-                case 'o' : gmp_printf ("% .*FfO", DISP_PREC, *res, DISP_PREC);
+                case 'o' : gmp_printf ("% .*FfO", disp_prec, *res, disp_prec);
                 break;  
             }   
         }
@@ -60,13 +59,13 @@ int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
     else{
         for(int i = 0; i < strlen(printing_order); i++){
             switch(printing_order[i]){
-                case 'a' : gmp_printf ("% .*Ff", DISP_PREC, *amp, DISP_PREC);
+                case 'a' : gmp_printf ("% .*Ff", disp_prec, *amp, disp_prec);
                 break;
-                case 'v' : gmp_printf ("% .*Ff", DISP_PREC, *volt, DISP_PREC);
+                case 'v' : gmp_printf ("% .*Ff", disp_prec, *volt, disp_prec);
                 break;
-                case 'w' : gmp_printf ("% .*Ff", DISP_PREC, *power, DISP_PREC);
+                case 'w' : gmp_printf ("% .*Ff", disp_prec, *power, disp_prec);
                 break;
-                case 'o' : gmp_printf ("% .*Ff", DISP_PREC, *res, DISP_PREC);
+                case 'o' : gmp_printf ("% .*Ff", disp_prec, *res, disp_prec);
                 break;  
             }   
         }
@@ -77,7 +76,7 @@ int print_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power){
 
 
 
-//assign input values to the correct units
+//identify the units(volt, ampere, resistance or power) of the given input.
 int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power, char *first, char *sec){
 
     mpf_init(*volt);
@@ -145,6 +144,8 @@ int main(int argc, char **argv){
     size_t len = 0;
     char *line = NULL;
     
+
+    //work trhough given program options
     opterr = 0;
 
     while ((options = getopt (argc, argv, "no:p:")) != -1)
@@ -156,7 +157,7 @@ int main(int argc, char **argv){
         printing_order = optarg;
         break;
       case 'p':
-        DISP_PREC = atoi(optarg);
+        disp_prec = atoi(optarg);
         break;
       case '?':
         if (optopt == 'o' || optopt == 'p')
@@ -173,6 +174,8 @@ int main(int argc, char **argv){
         abort ();
       }
 
+
+    //solve for two given command line arguments
     if(argc == optind +2){
         if(init_values(&i_volt, &i_amp, &i_res, &i_power, argv[optind], argv[optind + 1]))
             if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
@@ -181,7 +184,7 @@ int main(int argc, char **argv){
     }
     
     
-            
+    //work through stdin input. it has to be given two values in each line seperated by space
     if(!feof(stdin)){
         while((read = getline(&line, &len, stdin)) != -1){
             char *stream_input[2];

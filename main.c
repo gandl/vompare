@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <gmp.h>
 #include <string.h>
@@ -138,12 +139,16 @@ int init_values(mpf_t *volt, mpf_t *amp, mpf_t *res, mpf_t *power, char *first, 
 int main(int argc, char **argv){
 
     mpf_t i_volt, i_amp, i_res, i_power;
-    int c;
+    int options;
+    ssize_t read;
+    size_t len = 0;
+    char *line = NULL;
+    char *stream_input[2];
 
     opterr = 0;
 
-    while ((c = getopt (argc, argv, "no:")) != -1)
-    switch (c){
+    while ((options = getopt (argc, argv, "no:")) != -1)
+    switch (options){
       case 'n':
         print_units = 0;
         break;
@@ -164,11 +169,34 @@ int main(int argc, char **argv){
         abort ();
       }
 
+    
+
 
     if(init_values(&i_volt, &i_amp, &i_res, &i_power, argv[optind], argv[optind + 1]))
         if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
             print_values(&i_volt, &i_amp, &i_res, &i_power);
 
+      
+    if(feof(stdin)){
+        printf("Schleife");
+        while((read = getline(&line, &len, stdin)) != -1){
+            
+            stream_input[0] = malloc(len * sizeof(char));
+            stream_input[1] = malloc(len * sizeof(char));
+            sscanf(line, "%s %s", stream_input[0], stream_input[1]);
+    
+            if(init_values(&i_volt, &i_amp, &i_res, &i_power, stream_input[0], stream_input[1]))
+                if(calc_values(&i_volt, &i_amp, &i_res, &i_power))
+                    print_values(&i_volt, &i_amp, &i_res, &i_power);
+    
+            
+            free(stream_input[0]);
+            free(stream_input[1]);
+            }
+            
+        free(line);            
+    }
+    
     
     return 1;
 

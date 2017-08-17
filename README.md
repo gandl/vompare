@@ -1,19 +1,33 @@
-Calculate Volt, Ampere, Resistance and Power
-================
+# vompare: Calculate Volt, Ampere, Resistance and Power
 
+A simple commandline tool to calculate the missing two values from two given ones.
+
+## Compiling
+
+
+Just type make and run the executable with two arguments
+
+'''
+./vompare 1V 1A
+'''
+
+## Usage
+
+'''
+vompare -n no units are displayed
+vompare -o vawo specify order and which units are printed
+vompare -p 128 gives the precision of the calculation
+vompare -d 10 is the precision being displayed
+'''
 
 Two arguments are needed. 
 
 Type of input is identified by their ending:
-
 A for Ampere
-
 V for Volt
-
 O for Resistance (Ohm)
-
 W for Power (Watt)
 
-Requirement: [GNU Multiple Precision Library](https://gmplib.org/)
+## Dependencies
+ [GNU Multiple Precision Library](https://gmplib.org/)
 
-possible options are: -n for not showing any units, - o vaow for changing the order of output, -p 1024 for precision calculation and -d 10 for display precision.

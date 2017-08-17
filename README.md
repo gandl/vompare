@@ -28,6 +28,8 @@ V for Volt,
 O for Resistance (Ohm) and 
 W for Power (Watt)
 
+Or you can just pipe something like a file in. The format hast to be two values in each row.
+
 ## Dependencies
  [GNU Multiple Precision Library](https://gmplib.org/)
 

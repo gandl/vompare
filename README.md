@@ -23,9 +23,9 @@ vompare -d 10 is the precision being displayed
 Two arguments are needed. 
 
 Type of input is identified by their ending:
-A for Ampere
-V for Volt
-O for Resistance (Ohm)
+A for Ampere,
+V for Volt,
+O for Resistance (Ohm) and 
 W for Power (Watt)
 
 ## Dependencies
